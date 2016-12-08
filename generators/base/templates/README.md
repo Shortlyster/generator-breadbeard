@@ -1,3 +1,3 @@
-# Welcome To Dendritic API
+# Welcome To Redbeard API
 
 <%= appName %> Blargh!

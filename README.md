@@ -1,13 +1,13 @@
-# Dendritic Projects Generator
+# Redbeard Projects Generator
 
-This is a spike of a `yeoman` based generators system for the `dendritic` project
+This is a spike of a `yeoman` based generators system for the `redbeard` project
 
 ## Usage & Examples
 
 ```
-npm install -g yo generator-dendritic
+npm install -g yo generator-redbeard
 
-yo dendritic SpektakularApp
+yo redbeard SpektakularApp
 ```
 
 ## Development
