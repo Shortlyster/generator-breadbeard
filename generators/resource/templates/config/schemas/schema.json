@@ -6,9 +6,6 @@
     "id": {
       "$ref": "#/definitions/uuid"
     },
-    "rev": {
-      "$ref": "#/definitions/uuid"
-    },
     "name": {
       "type": "string",
       "faker": "name.findName"

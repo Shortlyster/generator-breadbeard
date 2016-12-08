@@ -1,5 +1,4 @@
 const Ajv = require('ajv');
-const uuid = require('uuid');
 const { thinky, schema } = require('../../config');
 
 /**
@@ -19,10 +18,6 @@ exports.create = (modelName, opts = {}) => {
 
   if (opts.audit) {
     exports.setupAuditLog(Model);
-  }
-
-  if (modelSchema.properties.rev) {
-    exports.setRevLifecycle(Model);
   }
 
   if (modelSchema.properties.createdAt || modelSchema.properties.updatedAt) {
@@ -160,22 +155,6 @@ exports.setupAuditLog = Model => {
 };
 
 /**
- * Sets up the `rev` properties lifecycles
- *
- * @param {class} thinky model
- * @return void
- */
-exports.setRevLifecycle = Model => {
-  Model.pre('save', function (next) {
-    if (!this.isSaved() && !this.rev) {
-      this.rev = uuid.v4();
-    }
-
-    next();
-  });
-};
-
-/**
  * Sets the automatic `createdAt` and `updatedAt` records handling
  *
  * @param {class} thinky model
@@ -194,8 +173,7 @@ exports.setTimestampsHandling = Model => {
 };
 
 /**
- * The document #update/#replace functionality that
- * takes in account the `rev` versions
+ * The document #update/#replace functionality
  */
 const Document = require('thinky/lib/document');
 
@@ -209,7 +187,6 @@ Object.defineProperty(Document.prototype, 'update', {
 Object.defineProperty(Document.prototype, 'replace', {
   enumerable: false,
   value(data) {
-    const { rev = this.rev } = data || { };
     const applyHooks = hooks => {
       for (const hook of hooks) {
         hook.call(this, () => {});
@@ -219,7 +196,7 @@ Object.defineProperty(Document.prototype, 'replace', {
     // cleaing up all the existing data
     Object.getOwnPropertyNames(this).forEach(key => key !== 'id' && delete this[key]);
 
-    // setting new data with a new `rev` if necessary
+    // setting new data
     this.merge(Object.assign({ }, data));
 
     // NOTE: `validate()` can return a Promise
@@ -229,18 +206,11 @@ Object.defineProperty(Document.prototype, 'replace', {
 
       applyHooks(preSave);
 
-      const newData = Object.assign({ }, this, rev ? { rev: uuid.v4() } : { });
-      const REV_MISMATCH_ERROR = '`rev` was changed by another update';
+      const newData = Object.assign({ }, this);
 
       // making a low level `replace` request that validates the current `rev` on the DB side
-      return r.table(Model.getTableName()).get(this.id).replace(doc => (
-        rev ? r.branch(doc('rev').eq(rev), newData, r.error(REV_MISMATCH_ERROR)) : newData
-      )).run()
+      return r.table(Model.getTableName()).get(this.id).replace(doc => (newData)).run()
       .then(result => {
-        if (result.first_error === REV_MISMATCH_ERROR) {
-          throw new thinky.Errors.ValidationError(REV_MISMATCH_ERROR);
-        }
-
         applyHooks(postSave);
 
         return Object.assign(this, newData);

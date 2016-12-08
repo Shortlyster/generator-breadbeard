@@ -6,9 +6,6 @@
     "id": {
       "$ref": "#/definitions/uuid"
     },
-    "rev": {
-      "$ref": "#/definitions/uuid"
-    },
     "email": {
       "type": "string",
       "format": "email",

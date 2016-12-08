@@ -73,21 +73,21 @@ exports.testStandardControllerList = (controller, fixture) => {
     });
 
     it('allows to order things by a specific field', function *() {
-      const params = { orderBy: 'rev' };
+      const params = { orderBy: 'id' };
       const result = yield controller.all(params);
-      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'rev'));
+      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'id'));
     });
 
     it('allows to skip records', function *() {
-      const params = { orderBy: 'rev', skip: 1 };
+      const params = { orderBy: 'id', skip: 1 };
       const result = yield controller.all(params);
-      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'rev').slice(1));
+      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'id').slice(1));
     });
 
     it('allows to limit records', function *() {
-      const params = { orderBy: 'rev', limit: 2 };
+      const params = { orderBy: 'id', limit: 2 };
       const result = yield controller.all(params);
-      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'rev').slice(0, 2));
+      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'id').slice(0, 2));
     });
   });
 };
@@ -126,7 +126,7 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
   describe('.create(data)', () => {
     let validData;
     beforeEach(() => {
-      validData = fixture.data({ id: undefined, rev: undefined, createdAt: undefined });
+      validData = fixture.data({ id: undefined, createdAt: undefined });
     });
 
     it('saves valid data and returns a model instance', function *() {
@@ -140,14 +140,8 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
       } : {};
 
       toObject(filter(record)).must.eql(toObject(
-        filter(validData), Object.assign(timestamps, { id: record.id, rev: record.rev })
+        filter(validData), Object.assign(timestamps, { id: record.id })
       ));
-    });
-
-    it('automatically adds a `rev` property onto new records', function *() {
-      delete validData.rev;
-      const record = yield controller.create(validData);
-      if (record.rev) record.rev.must.match(UUID_RE);
     });
 
     it('throws validation errors when data is missing', function *() {
@@ -165,31 +159,21 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
 /**
  * Tests the standard `controller.update(id, params)` method
  */
-exports.testStandardControllerUpdate = (controller, fixture, filter = sameThing) => {
+exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
   describe('.update(id, params)', () => {
     let record;
     let validData;
 
     before(function *() {
       record = yield fixture.record({ createdAt: undefined });
-      validData = fixture.data({ id: undefined, rev: record.rev, createdAt: undefined });
+      validData = fixture.data({ id: undefined, createdAt: undefined });
     });
 
     it('updates params when things are good', function *() {
       const result = yield controller.update(record.id, validData);
-      const timestamps = fixture.schema.properties.createdAt ? {
-        createdAt: new Date(), updatedAt: new Date()
-      } : {};
 
       // must return an updated record
       result.constructor.must.equal(fixture.Model);
-      toObject(filter(result), { rev: null }).must.eql(
-        filter(Object.assign({}, record, validData, { rev: null }, timestamps))
-      );
-
-      // must update the `rev` with a new stamp
-      result.rev.must.not.eql(record.rev);
-      result.rev.must.match(UUID_RE);
     });
 
     it('throws validation errors when data is missing', function *() {
@@ -204,11 +188,11 @@ exports.testStandardControllerUpdate = (controller, fixture, filter = sameThing)
 
     it('explodes when data is wrong', function *() {
       try {
-        yield controller.update(record.id, { rev: 'hack!' });
+        yield controller.update(record.id, { id: 'hack!' });
         throw new Error('expected to throw a ValidationError');
       } catch (e) {
         e.must.be.instanceOf(ValidationError);
-        e.message.must.contain('`rev` must match pattern');
+        e.message.must.contain('`id` must match pattern');
       }
     });
 
@@ -226,14 +210,14 @@ exports.testStandardControllerUpdate = (controller, fixture, filter = sameThing)
 /**
  * Tests the standard `controller.replace(id, data)` functionality
  */
-exports.testStandardControllerReplace = (controller, fixture, filter = sameThing) => {
+exports.testStandardControllerReplace = (controller, fixture) => {
   describe('.replace(id, params)', () => {
     let record;
     let validData;
 
     before(function *() {
       record = yield fixture.record({ createdAt: undefined });
-      validData = fixture.data({ id: undefined, rev: record.rev, createdAt: undefined });
+      validData = fixture.data({ id: undefined, createdAt: undefined });
     });
 
     it('updates params when things are good', function *() {
@@ -244,24 +228,20 @@ exports.testStandardControllerReplace = (controller, fixture, filter = sameThing
 
       // must return an updated record
       result.constructor.must.equal(fixture.Model);
-      toObject(filter(result), { rev: null }).must.eql(
-        filter(Object.assign({}, record, validData, { rev: null }, timestamps))
+      toObject(result).must.eql(
+        Object.assign({}, record, validData, timestamps)
       );
-
-      // must update the `rev` with a new stamp
-      result.rev.must.not.eql(record.rev);
-      result.rev.must.match(UUID_RE);
     });
 
     it('explodes when data is wrong', function *() {
-      const data = Object.assign({}, validData, { rev: 'hack!' });
+      const data = Object.assign({}, validData, { id: 'hack!' });
 
       try {
         yield controller.replace(record.id, data);
         throw new Error('expected to throw a ValidationError');
       } catch (e) {
         e.must.be.instanceOf(ValidationError);
-        e.message.must.contain('`rev` must match pattern');
+        e.message.must.contain('`id` must match pattern');
       }
     });
 
