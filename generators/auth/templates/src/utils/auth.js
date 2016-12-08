@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const password = require('simple-password');
+const password = require('shortlyster-password');
 const { HASH_ROUNDS, JWT_SECRET } = require('../../config');
 
 exports.createToken = function (data, expires) {
