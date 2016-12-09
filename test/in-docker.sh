@@ -1,12 +1,12 @@
-rm -rf redbeard_test
+rm -rf breadbeard_test
 
-echo "> yo redbeard redbeard_test"
-yo redbeard redbeard_test --skip-install
+echo "> yo breadbeard breadbeard_test"
+yo breadbeard breadbeard_test --skip-install
 
-pushd ./redbeard_test
+pushd ./breadbeard_test
 
-echo "> yo redbeard:auth"
-yo redbeard:auth --skip-install
+echo "> yo breadbeard:auth"
+yo breadbeard:auth --skip-install
 # adding the auth dependnecies without installing it
 sed "s/\(\(^[ ]*\)\"express\":\s*[^,]*,\)/\1\\
 \2\"express-jwt\": \"^5.0.0\",/" <package.json >package.json.updated
@@ -15,33 +15,33 @@ sed "s/\(\(^[ ]*\)\"express\":\s*[^,]*,\)/\1\\
 \2\"shortlyster-password\": \"^1.0.2\",/" <package.json >package.json.updated
 mv package.json.updated package.json
 
-echo "> yo redbeard:resource green_apple"
-yo redbeard:resource green_apple --skip-install
+echo "> yo breadbeard:resource green_apple"
+yo breadbeard:resource green_apple --skip-install
 
-echo "> yo redbeard:resource CoolBananas --no-timestamps"
-yo redbeard:resource CoolBananas --skip-install --no-timestamps
+echo "> yo breadbeard:resource CoolBananas --no-timestamps"
+yo breadbeard:resource CoolBananas --skip-install --no-timestamps
 
-echo "> yo redbeard:migration TabsToSpaces"
-yo redbeard:migration TabsToSpaces
+echo "> yo breadbeard:migration TabsToSpaces"
+yo breadbeard:migration TabsToSpaces
 
 docker-compose down
 
 echo "> migrate up"
-docker-compose run redbeard_test bin/migrate up
+docker-compose run breadbeard_test bin/migrate up
 
 echo "> migrate list"
-docker-compose run redbeard_test bin/migrate list
+docker-compose run breadbeard_test bin/migrate list
 
 echo "> migrate rollback"
-docker-compose run redbeard_test bin/migrate rollback
+docker-compose run breadbeard_test bin/migrate rollback
 
 echo "> npm test"
-docker-compose run redbeard_test npm test
+docker-compose run breadbeard_test npm test
 
 echo "> npm run lint"
-docker-compose run redbeard_test npm run lint
+docker-compose run breadbeard_test npm run lint
 
 # docker-compose down
 
 popd
-rm -rf redbeard_test
+rm -rf breadbeard_test

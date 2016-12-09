@@ -1,13 +1,13 @@
-# Redbeard Projects Generator
+# Breadbeard Projects Generator
 
-This is a spike of a `yeoman` based generators system for the `redbeard` project
+This is a spike of a `yeoman` based generators system for the `breadbeard` project
 
 ## Usage & Examples
 
 ```
-npm install -g yo generator-redbeard
+npm install -g yo generator-breadbeard
 
-yo redbeard SpektakularApp
+yo breadbeard SpektakularApp
 ```
 
 ## Development

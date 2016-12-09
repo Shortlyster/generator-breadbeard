@@ -1,3 +1,3 @@
-# Welcome To Redbeard API
+# Welcome To Breadbeard API
 
 <%= appName %> Blargh!
