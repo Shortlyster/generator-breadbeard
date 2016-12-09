@@ -228,6 +228,11 @@ exports.testStandardControllerReplace = (controller, fixture) => {
 
       // must return an updated record
       result.constructor.must.equal(fixture.Model);
+      if (result.password) {
+        result.password = 'flingle';
+        validData.password = 'flingle';
+      }
+
       toObject(result).must.eql(
         Object.assign({}, record, validData, timestamps)
       );

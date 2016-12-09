@@ -209,8 +209,8 @@ Object.defineProperty(Document.prototype, 'replace', {
       const newData = Object.assign({ }, this);
 
       // making a low level `replace` request that validates the current `rev` on the DB side
-      return r.table(Model.getTableName()).get(this.id).replace(doc => (newData)).run()
-      .then(result => {
+      return r.table(Model.getTableName()).get(this.id).replace(doc => (newData)).run() // eslint-disable-line
+      .then(result => { // eslint-disable-line
         applyHooks(postSave);
 
         return Object.assign(this, newData);
