@@ -1,7 +1,6 @@
 /**
  * A set of standard router testing scripts
  */
-const io = require('socket.io-client');
 const { run, sorted, toObject, UUID_RE, jsonDecode } = require('./commons');
 
 /**
@@ -21,8 +20,7 @@ exports.testStandardRoute = (...args) => {
     post: exports.testStandardRoutePost,
     put: exports.testStandardRoutePut,
     patch: exports.testStandardRoutePatch,
-    delete: exports.testStandardRouteDelete,
-    socket: exports.testStandardRouteSocket
+    delete: exports.testStandardRouteDelete
   });
 };
 
@@ -256,83 +254,6 @@ exports.testStandardRouteDelete = (app, path, fixture, serialize = toObject) => 
       const response = yield app.delete(`${path}/hack-hack-hack`);
       response.status.must.eql(404);
       response.body.must.eql({ error: 'not found' });
-    });
-  });
-};
-
-/**
- * Tests the standard changes web-socket behavior
- */
-exports.testStandardRouteSocket = (app, path, fixture, serialize = toObject) => {
-  describe('web-socket connection', () => {
-    let doc1;
-    let doc2;
-    let client;
-
-    const wait = timeout => new Promise(resolve => setTimeout(resolve, timeout));
-    const listenFor = event => new Promise((resolve, reject) => {
-      client.on(event, data => resolve(data));
-      client.on('error', error => reject(error));
-    });
-
-    before(function *() {
-      yield fixture.Model.delete().execute();
-      [doc1, doc2] = yield [
-        fixture.record(),
-        fixture.record()
-      ];
-      yield wait(100); // waiting for all events to propagate
-    });
-
-    beforeEach(() => {
-      client = io(app.urlFor(path), { forceNew: true });
-    });
-
-    afterEach(() => client.disconnect());
-
-    it('allows to open up connection and get metadata back', function *() {
-      const metadata = yield listenFor('metadata');
-      metadata.must.eql({ count: 2 });
-    });
-
-    it('sends through all existing records and the `all:loaded` event', function *() {
-      const records = [];
-      const allDone = listenFor('all:loaded');
-      client.on('existed', record => records.push(record));
-      const result = yield allDone;
-      result.must.eql({});
-      sorted(records).must.eql(sorted([doc1, doc2]).map(serialize).map(jsonDecode));
-    });
-
-    it('sends records through when they are created', function *() {
-      const feed = listenFor('created'); yield wait(50);
-      const newRecord = yield fixture.record({ createdAt: undefined });
-      const feedRecord = yield feed;
-      const timestamps = fixture.schema.properties.createdAt ? {
-        createdAt: new Date(), updatedAt: new Date()
-      } : {};
-
-      feedRecord.must.eql(jsonDecode(serialize(
-        Object.assign({}, newRecord, timestamps))
-      ));
-    });
-
-    it('sends notifications about changed objects', function *() {
-      const feed = listenFor('updated'); yield wait(50);
-      const newData = fixture.data({ id: undefined });
-      const updatedRecord = yield doc1.merge(newData).save();
-      const feedRecord = yield feed;
-
-      feedRecord.must.eql(jsonDecode(serialize(updatedRecord)));
-    });
-
-    it('sends notifications through when records are deleted', function *() {
-      const feed = listenFor('deleted');
-      yield wait(50);
-      yield doc1.delete();
-      const feedRecord = yield feed;
-
-      feedRecord.must.eql(jsonDecode(serialize(doc1)));
     });
   });
 };

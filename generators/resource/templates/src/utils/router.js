@@ -31,17 +31,5 @@ exports.createRouter = (controller, serialize = defaultSerializer) => {
       res.json(serialize(record));
     });
 
-  router.socket = function *(socket, req) {
-    const { feed, count } = yield controller.watch(req.query);
-    socket.emit('metadata', { count });
-
-    feed.listen((err, event, record) => {
-      if (err) throw err;
-      socket.emit(event, serialize(record));
-    });
-
-    return feed;
-  };
-
   return router;
 };
