@@ -1,4 +1,4 @@
-const HttpError = require('standard-http-error');
+const HttpError = require('httperrors');
 const {
   thinky: {
     Errors: { DocumentNotFound, ValidationError }
@@ -11,7 +11,7 @@ module.exports = (err, req, res, next) => {
   } else if (err instanceof ValidationError) {
     res.status(422).send({ error: err.message });
   } else if (err instanceof HttpError) {
-    res.status(err.code).json({ error: err.message });
+    res.status(err.statusCode).json({ error: err.name });
   }
 
   next(err);
