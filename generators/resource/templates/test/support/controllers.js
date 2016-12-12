@@ -52,8 +52,8 @@ exports.testStandardControllerList = (controller, fixture) => {
 
     it('returns all the records by default', function *() {
       const result = yield controller.all();
-      result.must.be.an(Array);
-      sorted(result).must.eql(sorted([
+      expect(result).to.be.an('array');
+      expect(sorted(result)).to.eql(sorted([
         doc1, doc2, doc3
       ]));
     });
@@ -61,13 +61,13 @@ exports.testStandardControllerList = (controller, fixture) => {
     it('allows to filter the list by a specific field', function *() {
       const filter = { id: doc1.id };
       const result = yield controller.all(filter);
-      sorted(result).must.eql(sorted([doc1]));
+      expect(sorted(result)).to.eql(sorted([doc1]));
     });
 
     it('ignores totally unsupported params', function *() {
       const filter = { totalMonkey: 123 };
       const result = yield controller.all(filter);
-      sorted(result).must.eql(sorted([
+      expect(sorted(result)).to.eql(sorted([
         doc1, doc2, doc3
       ]));
     });
@@ -75,19 +75,19 @@ exports.testStandardControllerList = (controller, fixture) => {
     it('allows to order things by a specific field', function *() {
       const params = { orderBy: 'id' };
       const result = yield controller.all(params);
-      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'id'));
+      expect(result.map(toObject)).to.eql(sorted([doc1, doc2, doc3], 'id'));
     });
 
     it('allows to skip records', function *() {
       const params = { orderBy: 'id', skip: 1 };
       const result = yield controller.all(params);
-      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'id').slice(1));
+      expect(result.map(toObject)).to.eql(sorted([doc1, doc2, doc3], 'id').slice(1));
     });
 
     it('allows to limit records', function *() {
       const params = { orderBy: 'id', limit: 2 };
       const result = yield controller.all(params);
-      result.map(toObject).must.eql(sorted([doc1, doc2, doc3], 'id').slice(0, 2));
+      expect(result.map(toObject)).to.eql(sorted([doc1, doc2, doc3], 'id').slice(0, 2));
     });
   });
 };
@@ -105,7 +105,7 @@ exports.testStandardControllerFind = (controller, fixture) => {
 
     it('returns the record when it exists', function *() {
       const result = yield controller.find(record.id);
-      toObject(result).must.eql(toObject(record));
+      expect(toObject(result)).to.eql(toObject(record));
     });
 
     it('throws DocumentNotFound if the record does not exist', function *() {
@@ -113,7 +113,7 @@ exports.testStandardControllerFind = (controller, fixture) => {
         yield controller.find('hack!');
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
-        error.must.be.instanceOf(DocumentNotFound);
+        expect(error).to.be.instanceOf(DocumentNotFound);
       }
     });
   });
@@ -132,14 +132,14 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
     it('saves valid data and returns a model instance', function *() {
       const record = yield controller.create(validData);
 
-      record.constructor.must.equal(fixture.Model);
-      record.id.must.match(UUID_RE);
+      expect(record.constructor).to.eql(fixture.Model);
+      expect(record.id).to.match(UUID_RE);
 
       const timestamps = fixture.schema.properties.createdAt ? {
         createdAt: new Date(), updatedAt: new Date()
       } : {};
 
-      toObject(filter(record)).must.eql(toObject(
+      expect(toObject(filter(record))).to.eql(toObject(
         filter(validData), Object.assign(timestamps, { id: record.id })
       ));
     });
@@ -149,8 +149,8 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
         yield controller.create({});
         throw new Error('expected throw a ValidationError');
       } catch (e) {
-        e.must.be.instanceOf(ValidationError);
-        e.message.must.contain('is required');
+        expect(e).to.be.instanceOf(ValidationError);
+        expect(e.message).to.contain('is required');
       }
     });
   });
@@ -173,7 +173,7 @@ exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
       const result = yield controller.update(record.id, validData);
 
       // must return an updated record
-      result.constructor.must.equal(fixture.Model);
+      expect(result.constructor).to.eql(fixture.Model);
     });
 
     it('throws validation errors when data is missing', function *() {
@@ -181,8 +181,8 @@ exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
         yield controller.replace(record.id, {});
         throw new Error('expected throw a ValidationError');
       } catch (e) {
-        e.must.be.instanceOf(ValidationError);
-        e.message.must.contain('is required');
+        expect(e).to.be.instanceOf(ValidationError);
+        expect(e.message).to.contain('is required');
       }
     });
 
@@ -191,8 +191,8 @@ exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
         yield controller.update(record.id, { id: 'hack!' });
         throw new Error('expected to throw a ValidationError');
       } catch (e) {
-        e.must.be.instanceOf(ValidationError);
-        e.message.must.contain('`id` must match pattern');
+        expect(e).to.be.instanceOf(ValidationError);
+        expect(e.message).to.contain('`id` must match pattern');
       }
     });
 
@@ -201,7 +201,7 @@ exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
         yield controller.update('hack!', validData);
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
-        error.must.be.instanceOf(DocumentNotFound);
+        expect(error).to.be.instanceOf(DocumentNotFound);
       }
     });
   });
@@ -227,13 +227,13 @@ exports.testStandardControllerReplace = (controller, fixture) => {
       } : {};
 
       // must return an updated record
-      result.constructor.must.equal(fixture.Model);
+      expect(result.constructor).to.eql(fixture.Model);
       if (result.password) {
         result.password = 'flingle';
         validData.password = 'flingle';
       }
 
-      toObject(result).must.eql(
+      expect(toObject(result)).to.eql(
         Object.assign({}, record, validData, timestamps)
       );
     });
@@ -245,8 +245,8 @@ exports.testStandardControllerReplace = (controller, fixture) => {
         yield controller.replace(record.id, data);
         throw new Error('expected to throw a ValidationError');
       } catch (e) {
-        e.must.be.instanceOf(ValidationError);
-        e.message.must.contain('`id` must match pattern');
+        expect(e).to.be.instanceOf(ValidationError);
+        expect(e.message).to.contain('`id` must match pattern');
       }
     });
 
@@ -255,7 +255,7 @@ exports.testStandardControllerReplace = (controller, fixture) => {
         yield controller.replace('hack!', validData);
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
-        error.must.be.instanceOf(DocumentNotFound);
+        expect(error).to.be.instanceOf(DocumentNotFound);
       }
     });
   });
@@ -274,10 +274,10 @@ exports.testStandardControllerDelete = (controller, fixture, filter = sameThing)
 
     it('deletes a document for sure when it exists', function *() {
       const result = yield controller.delete(record.id);
-      toObject(filter(result)).must.eql(toObject(filter(record)));
+      expect(toObject(filter(result))).to.eql(toObject(filter(record)));
 
       const records = yield record.getModel().filter({ id: record.id }).run();
-      records.must.have.length(0);
+      expect(records).to.have.length(0);
     });
 
     it('throws DocumentNotFound when the document does not exist', function *() {
@@ -285,7 +285,7 @@ exports.testStandardControllerDelete = (controller, fixture, filter = sameThing)
         yield controller.delete('hack!');
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
-        error.must.be.instanceOf(DocumentNotFound);
+        expect(error).to.be.instanceOf(DocumentNotFound);
       }
     });
   });

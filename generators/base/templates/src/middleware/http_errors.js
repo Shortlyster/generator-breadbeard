@@ -11,7 +11,7 @@ module.exports = (err, req, res, next) => {
   } else if (err instanceof ValidationError) {
     res.status(422).send({ error: err.message });
   } else if (err instanceof HttpError) {
-    res.status(err.statusCode).json({ error: err.name });
+    res.status(err.statusCode).json({ error: err.message });
   }
 
   next(err);

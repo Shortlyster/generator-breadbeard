@@ -43,28 +43,28 @@ exports.testStandardRouteIndex = (app, path, fixture, serialize = toObject) => {
 
     it('returns all records by default', function *() {
       const response = yield app.get(path);
-      response.status.must.eql(200);
-      sorted(response.body).must.eql(sorted([doc1, doc2]).map(serialize).map(jsonDecode));
+      expect(response.status).to.eql(200);
+      expect(sorted(response.body)).to.eql(sorted([doc1, doc2]).map(serialize).map(jsonDecode));
     });
 
     it('allows to specify property filters', function *() {
       const response = yield app.get(path, { id: doc1.id });
-      response.status.must.eql(200);
-      sorted(response.body).must.eql(sorted([doc1]).map(serialize).map(jsonDecode));
+      expect(response.status).to.eql(200);
+      expect(sorted(response.body)).to.eql(sorted([doc1]).map(serialize).map(jsonDecode));
     });
 
     it('allows to sort data by fields', function *() {
       const response = yield app.get(path, { orderBy: 'id' });
-      response.status.must.eql(200);
-      sorted(response.body, 'id').must.eql(
+      expect(response.status).to.eql(200);
+      expect(sorted(response.body, 'id')).to.eql(
         sorted([doc1, doc2], 'id').map(serialize).map(jsonDecode)
       );
     });
 
     it('allows `limit` data', function *() {
       const response = yield app.get(path, { limit: 1, orderBy: 'id' });
-      response.status.must.eql(200);
-      response.body.must.eql(sorted(
+      expect(response.status).to.eql(200);
+      expect(response.body).to.eql(sorted(
         [doc1, doc2], 'id'
       ).slice(0, 1).map(serialize).map(jsonDecode));
     });
@@ -84,14 +84,14 @@ exports.testStandardRouteFetch = (app, path, fixture, serialize = toObject) => {
 
     it('returns the record if exists', function *() {
       const response = yield app.get(`${path}/${record.id}`);
-      response.status.must.eql(200);
-      response.body.must.eql(jsonDecode(serialize(record)));
+      expect(response.status).to.eql(200);
+      expect(response.body).to.eql(jsonDecode(serialize(record)));
     });
 
     it('throws 404 when the record does not exist', function *() {
       const response = yield app.get(`${path}/hack-hack-hack`);
-      response.status.must.eql(404);
-      response.body.must.eql({ error: 'not found' });
+      expect(response.status).to.eql(404);
+      expect(response.body).to.eql({ error: 'not found' });
     });
   });
 };
@@ -110,19 +110,18 @@ exports.testStandardRoutePost = (app, path, fixture, serialize = toObject) => {
 
       const response = yield app.post(path, data);
 
-      response.status.must.eql(201);
-      toObject(response.body, omits).must.eql(
+      expect(response.status).to.eql(201);
+      expect(toObject(response.body, omits)).to.eql(
         jsonDecode(serialize(Object.assign({}, data, omits, timestamps)))
       );
-
       // must set the new id
-      response.body.id.must.match(UUID_RE);
+      expect(response.body.id).to.match(UUID_RE);
     });
 
     it('throws 422 if the data is bad', function *() {
       const response = yield app.post(path, {});
-      response.status.must.eql(422);
-      response.body.error.must.contain('is required');
+      expect(response.status).to.eql(422);
+      expect(response.body.error).to.contain('is required');
     });
   });
 };
@@ -146,29 +145,29 @@ exports.testStandardRoutePut = (app, path, fixture, serialize = toObject) => {
         createdAt: new Date(), updatedAt: new Date()
       } : {};
 
-      response.status.must.eql(200);
-      response.body.must.eql(jsonDecode(serialize(
+      expect(response.status).to.eql(200);
+      expect(response.body).to.eql(jsonDecode(serialize(
         Object.assign({}, record, data, timestamps)
       )));
     });
 
     it('throws 404 if the record does not exist', function *() {
       const response = yield app.put(`${path}/hack-hack-hack`, {});
-      response.status.must.eql(404);
-      response.body.must.eql({ error: 'not found' });
+      expect(response.status).to.eql(404);
+      expect(response.body).to.eql({ error: 'not found' });
     });
 
     it('throws 422 if data is missing', function *() {
       const response = yield app.put(`${path}/${record.id}`, { id: data.id });
-      response.status.must.eql(422);
-      response.body.error.must.contain('is required');
+      expect(response.status).to.eql(422);
+      expect(response.body.error).to.contain('is required');
     });
 
     it('throws 422 if the data validation fails', function *() {
       const data = fixture.data({ id: 'hack hack hack' });
       const response = yield app.put(`${path}/${record.id}`, data);
-      response.status.must.eql(422);
-      response.body.must.eql({
+      expect(response.status).to.eql(422);
+      expect(response.body).to.eql({
         error: `\`id\` must match pattern "${UUID_RE.toString().replace(/\//g, '')}"`
       });
     });
@@ -193,28 +192,28 @@ exports.testStandardRoutePatch = (app, path, fixture, serialize = toObject) => {
       const timestamps = fixture.schema.properties.createdAt ? {
         createdAt: new Date(), updatedAt: new Date()
       } : {};
-      response.status.must.eql(200);
-      response.body.must.eql(jsonDecode(serialize(
+      expect(response.status).to.eql(200);
+      expect(response.body).to.eql(jsonDecode(serialize(
         Object.assign({}, record, data, timestamps)
       )));
     });
 
     it('accepts empty and partial data sets', function *() {
       const response = yield app.patch(`${path}/${record.id}`, { id: data.id });
-      response.status.must.eql(200);
+      expect(response.status).to.eql(200);
     });
 
     it('throws 404 if the record does not exist', function *() {
       const response = yield app.patch(`${path}/hack-hack-hack`, {});
-      response.status.must.eql(404);
-      response.body.must.eql({ error: 'not found' });
+      expect(response.status).to.eql(404);
+      expect(response.body).to.eql({ error: 'not found' });
     });
 
     it('throws 422 if the data validation fails', function *() {
       const data = fixture.data({ id: 'hack hack hack' });
       const response = yield app.patch(`${path}/${record.id}`, data);
-      response.status.must.eql(422);
-      response.body.must.eql({
+      expect(response.status).to.eql(422);
+      expect(response.body).to.eql({
         error: `\`id\` must match pattern "${UUID_RE.toString().replace(/\//g, '')}"`
       });
     });
@@ -226,9 +225,9 @@ exports.testStandardRoutePatch = (app, path, fixture, serialize = toObject) => {
 
       const response = yield app.patch(`${path}/${record.id}`, data);
 
-      response.status.must.eql(200);
-      response.body.foo.must.eql({});
-      response.body.must.not.have.property('boo');
+      expect(response.status).to.eql(200);
+      expect(response.body.foo).to.eql({});
+      expect(response.body).to.not.have.property('boo');
     });
   });
 };
@@ -246,14 +245,14 @@ exports.testStandardRouteDelete = (app, path, fixture, serialize = toObject) => 
 
     it('deletes a record if it exists', function *() {
       const response = yield app.delete(`${path}/${record.id}`);
-      response.status.must.eql(200);
-      response.body.must.eql(jsonDecode(serialize(record)));
+      expect(response.status).to.eql(200);
+      expect(response.body).to.eql(jsonDecode(serialize(record)));
     });
 
     it('throws 404 if the record does not exist', function *() {
       const response = yield app.delete(`${path}/hack-hack-hack`);
-      response.status.must.eql(404);
-      response.body.must.eql({ error: 'not found' });
+      expect(response.status).to.eql(404);
+      expect(response.body).to.eql({ error: 'not found' });
     });
   });
 };

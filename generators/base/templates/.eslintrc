@@ -6,5 +6,8 @@
     "no-plusplus": "off",
     "no-restricted-syntax": "off",
     "import/no-dynamic-require": "off"
+  },
+  "globals": {
+    "expect": false
   }
 }
