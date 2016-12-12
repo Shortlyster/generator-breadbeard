@@ -31,7 +31,7 @@
     "express-yields": "^1.0.0",
     "json-schema-deref-sync": "^0.3.2",
     "lodash": "^4.15.0",
-    "standard-http-error": "^2.0.0",
+    "httperrors": "^2.1.0",
     "thinky": "^2.3.6",
     "uuid": "^2.0.2"
   },

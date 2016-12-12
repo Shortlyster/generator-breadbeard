@@ -1,4 +1,4 @@
-const HttpError = require('standard-http-error');
+const HttpError = require('httperrors');
 const users = require('../../src/controllers/users');
 const { testStandardController } = require('../support/controllers');
 const userFixture = require('../fixtures/user');
@@ -29,8 +29,8 @@ describe('users controller', () => {
       try {
         yield users.signin('h4ckr@h4ck.com', validData.password);
       } catch (e) {
-        e.must.be.instanceOf(HttpError);
-        e.code.must.eql(401);
+        e.statusCode.must.eql(401);
+        e.must.be.instanceOf(HttpError.Unauthorized);
       }
     });
 
@@ -38,8 +38,8 @@ describe('users controller', () => {
       try {
         yield users.signin(validData.email, 'hack hack hack');
       } catch (e) {
-        e.must.be.instanceOf(HttpError);
-        e.code.must.eql(401);
+        e.statusCode.must.eql(401);
+        e.must.be.instanceOf(HttpError.Unauthorized);
       }
     });
   });
