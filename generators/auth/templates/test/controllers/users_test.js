@@ -1,4 +1,4 @@
-const HttpError = require('httperrors');
+const { Unauthorized } = require('httperrors');
 const users = require('../../src/controllers/users');
 const { testStandardController } = require('../support/controllers');
 const userFixture = require('../fixtures/user');
@@ -20,17 +20,16 @@ describe('users controller', () => {
 
     it('returns a user and token if everything is correct', function *() {
       const result = yield users.signin(validData.email, validData.password);
-      result.token.must.be.string();
+      expect(result.token).to.be.a('string');
 
-      Object.assign({}, result.user).must.eql(Object.assign({}, user));
+      expect(Object.assign({}, result.user)).to.eql(Object.assign({}, user));
     });
 
     it('throws UNAUTHORIZED if the email is wrong', function *() {
       try {
         yield users.signin('h4ckr@h4ck.com', validData.password);
       } catch (e) {
-        e.statusCode.must.eql(401);
-        e.must.be.instanceOf(HttpError.Unauthorized);
+        expect(e).to.be.instanceOf(Unauthorized);
       }
     });
 
@@ -38,8 +37,7 @@ describe('users controller', () => {
       try {
         yield users.signin(validData.email, 'hack hack hack');
       } catch (e) {
-        e.statusCode.must.eql(401);
-        e.must.be.instanceOf(HttpError.Unauthorized);
+        expect(e).to.be.instanceOf(Unauthorized);
       }
     });
   });

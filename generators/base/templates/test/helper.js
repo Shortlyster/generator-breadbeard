@@ -1,4 +1,4 @@
-require('must');
+const chai = require('chai');
 const mocha = require('mocha');
 const coMocha = require('co-mocha');
 
@@ -8,8 +8,7 @@ const app = require('../src/index');
 const doubleagent = require('doubleagent');
 
 exports.app = doubleagent(app);
-
-if (app.io) { app.io.attach(exports.app.server); }
+global.expect = chai.expect;
 
 const models = require('../src/models');
 

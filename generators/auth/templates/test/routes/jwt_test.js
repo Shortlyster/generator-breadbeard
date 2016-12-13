@@ -11,7 +11,7 @@ describe('JWT authentication handling', () => {
       Authorization: `Bearer ${token}`
     });
 
-    response.status.must.eql(200);
+    expect(response.status).to.eql(200);
   });
 
   it('must throw 401 for an invalid JWT bearer', function *() {
@@ -19,16 +19,16 @@ describe('JWT authentication handling', () => {
       Authorization: 'Bearer hackhackhack'
     });
 
-    response.status.must.eql(401);
+    expect(response.status).to.eql(401);
   });
 
   it('must accept a valid JWT in a query string param', function *() {
     const response = yield app.get(url, { token });
-    response.status.must.eql(200);
+    expect(response.status).to.eql(200);
   });
 
   it('must reject invalid JWT in the query string params', function *() {
     const response = yield app.get(url, { token: 'hack' });
-    response.status.must.eql(401);
+    expect(response.status).to.eql(401);
   });
 });

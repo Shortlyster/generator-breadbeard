@@ -37,22 +37,28 @@ describe('utils/model', function () {
     });
 
     it('should build a thinky class', () => {
-      Model.must.equal(thinky.models.things);
+      expect(Model).to.eql(thinky.models.things);
     });
 
-    it('should pick up validations correctly', () => (
-      new Model({}).save().must.reject.with.error(
-        thinky.Errors.ValidationError,
-        '`email` is required, `password` is required'
-      )
-    ));
+    it('should pick up validation errors', function *() {
+      try {
+        yield new Model({}).save();
+        throw new Error('should fail validations');
+      } catch (error) {
+        expect(error).to.be.instanceOf(thinky.Errors.ValidationError);
+        expect(error.message).to.eql('`email` is required, `password` is required');
+      }
+    });
 
-    it('should handle malformed data as well', () => {
+    it('should pick up validation errors', function *() {
       const params = { email: 'blah!', password: 'blah!' };
-      return new Model(params).save().must.reject.with.error(
-        thinky.Errors.ValidationError,
-        '`email` must match format "email"'
-      );
+      try {
+        yield new Model(params).save();
+        throw new Error('should fail validations');
+      } catch (error) {
+        expect(error).to.be.instanceOf(thinky.Errors.ValidationError);
+        expect(error.message).to.eql('`email` must match format "email"');
+      }
     });
   });
 
@@ -92,8 +98,8 @@ describe('utils/model', function () {
 
       const audit = yield Model.AuditModel.filter({ doc: { id: record.id } }).run();
 
-      audit[0].createdAt.must.be.a(Date);
-      audit[0].doc.must.eql(Object.assign({}, record));
+      expect(audit[0].createdAt).to.be.a('date');
+      expect(audit[0].doc).to.eql(Object.assign({}, record));
     });
   });
 
@@ -151,22 +157,22 @@ describe('utils/model', function () {
     it('partially updates data with #udpate', function *() {
       yield record.update({ lastName: 'new name' });
 
-      record.firstName.must.eql('nikolay');
-      record.lastName.must.eql('new name');
+      expect(record.firstName).to.eql('nikolay');
+      expect(record.lastName).to.eql('new name');
 
       const dbRecord = yield Model.get(record.id).run();
-      dbRecord.lastName.must.eql(record.lastName);
+      expect(dbRecord.lastName).to.eql(record.lastName);
     });
 
     it('fully updates data with #replace', function *() {
       yield record.replace({ firstName: 'new name' });
 
-      record.firstName.must.eql('new name');
-      record.must.not.have.property('lastName');
+      expect(record.firstName).to.eql('new name');
+      expect(record).to.not.have.property('lastName');
 
       const dbRecord = yield Model.get(record.id).run();
-      dbRecord.firstName.must.eql(record.firstName);
-      dbRecord.must.not.have.property('lastName');
+      expect(dbRecord.firstName).to.eql(record.firstName);
+      expect(dbRecord).to.not.have.property('lastName');
     });
 
     it('explodes when validation fails', function *() {
@@ -174,13 +180,13 @@ describe('utils/model', function () {
         yield record.update({ firstName: null });
         throw new Error('validation must fail');
       } catch (error) {
-        error.message.must.eql('`firstName` must be string');
+        expect(error.message).to.eql('`firstName` must be string');
       }
     });
 
     it('runs the pre/post hooks as expected', function *() {
       yield record.update({ lastName: 'new name' });
-      hookCalls.must.eql(['pre validate 1', 'pre save 1', 'post save 1']);
+      expect(hookCalls).to.eql(['pre validate 1', 'pre save 1', 'post save 1']);
     });
   });
 
@@ -227,8 +233,8 @@ describe('utils/model', function () {
     afterEach(() => timekeeper.freeze(now));
 
     it('automatically populates the created at and updated at timestamps', () => {
-      record.createdAt.must.eql(new Date());
-      record.updatedAt.must.eql(new Date());
+      expect(record.createdAt).to.eql(new Date());
+      expect(record.updatedAt).to.eql(new Date());
     });
 
     it('updates the updatedAt and keeps createdAt on existing records', function *() {
@@ -237,8 +243,8 @@ describe('utils/model', function () {
       timekeeper.freeze(tomorrow);
       yield record.merge({ name: 'antikolay' }).save();
 
-      record.createdAt.must.eql(now);
-      record.updatedAt.must.eql(tomorrow);
+      expect(record.createdAt).to.eql(now);
+      expect(record.updatedAt).to.eql(tomorrow);
     });
 
     it('updates the updatedAt with custom #update/#replace methods as well', function *() {
@@ -247,8 +253,8 @@ describe('utils/model', function () {
       timekeeper.freeze(tomorrow);
       yield record.update({ name: 'antikolay' });
 
-      record.createdAt.must.eql(now);
-      record.updatedAt.must.eql(tomorrow);
+      expect(record.createdAt).to.eql(now);
+      expect(record.updatedAt).to.eql(tomorrow);
     });
   });
 });

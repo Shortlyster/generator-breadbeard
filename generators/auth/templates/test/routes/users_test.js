@@ -25,10 +25,9 @@ describe('/users route', () => {
       const response = yield app.post('/users/signin', {
         email: validData.email, password: validData.password
       });
-
-      response.status.must.eql(200);
-      response.body.user.must.eql(serialize(user));
-      response.body.token.must.be.a.string();
+      expect(response.status).to.eql(200);
+      expect(response.body.user).to.eql(serialize(user));
+      expect(response.body.token).to.be.a('string');
     });
 
     it('throws 401 when credentials are incorect', function *() {
@@ -36,8 +35,8 @@ describe('/users route', () => {
         email: validData.email, password: 'hack hack hack'
       });
 
-      response.status.must.eql(401);
-      response.body.must.eql({ error: 'Unauthorized' });
+      expect(response.status).to.eql(401);
+      expect(response.body).to.eql({ error: 'Unauthorized' });
     });
   });
 });
