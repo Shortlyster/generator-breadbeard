@@ -40,19 +40,25 @@ describe('utils/model', function () {
       expect(Model).to.eql(thinky.models.things);
     });
 
-    it('should pick up validations correctly', () => {
-      expect(new Model({}).save()).to.eventually.be.rejectedWith(
-        thinky.Errors.ValidationError,
-        '`email` is required, `password` is required'
-      );
+    it('should pick up validation errors', function *() {
+      try {
+        yield new Model({}).save();
+        throw new Error('should fail validations');
+      } catch (error) {
+        expect(error).to.be.instanceOf(thinky.Errors.ValidationError);
+        expect(error.message).to.eql('`email` is required, `password` is required');
+      }
     });
 
-    it('should handle malformed data as well', () => {
+    it('should pick up validation errors', function *() {
       const params = { email: 'blah!', password: 'blah!' };
-      return expect(new Model(params).save()).to.eventually.be.rejectedWith(
-        thinky.Errors.ValidationError,
-        '`email` must match format "email"'
-      );
+      try {
+        yield new Model(params).save();
+        throw new Error('should fail validations');
+      } catch (error) {
+        expect(error).to.be.instanceOf(thinky.Errors.ValidationError);
+        expect(error.message).to.eql('`email` must match format "email"');
+      }
     });
   });
 

@@ -1,5 +1,5 @@
 {
-  "name": "breadbeard_test",
+  "name": "<%= appName %>",
   "version": "1.0.0",
   "description": "",
   "repository": {
@@ -30,10 +30,10 @@
     "express": "^4.14.0",
     "express-jwt": "^5.0.0",
     "express-yields": "^1.0.0",
+    "httperrors": "^2.1.0",
     "json-schema-deref-sync": "^0.3.2",
     "lodash": "^4.15.0",
     "shortlyster-password": "^1.0.2",
-    "standard-http-error": "^2.0.0",
     "thinky": "^2.3.6",
     "uuid": "^2.0.2"
   },
@@ -45,7 +45,6 @@
     "doubleagent": "^1.0.2",
     "eslint": "^3.4.0",
     "eslint-config-shortlyster": "^2.2.0",
-    "httperrors": "^2.1.0",
     "husky": "^0.11.6",
     "istanbul": "^0.4.5",
     "json-schema-faker": "^0.3.6",

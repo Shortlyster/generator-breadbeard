@@ -18,10 +18,10 @@ module.exports = createController(User, {
 
   *signin(email, pass) {
     const [user] = yield User.filter({ email }).run();
-    if (!user) throw new Unauthorized('Unauthorized');
+    if (!user) throw new Unauthorized();
 
     const verified = yield verifyPassword(pass, user.password);
-    if (!verified) throw new Unauthorized('Unauthorized');
+    if (!verified) throw new Unauthorized();
 
     const token = createToken({ id: user.id, role: user.role });
 

@@ -35,9 +35,7 @@ describe('/users route', () => {
         email: validData.email, password: 'hack hack hack'
       });
 
-      // response.status.must.eql(401);
       expect(response.status).to.eql(401);
-      // response.body.must.eql({ error: 'Unauthorized' });
       expect(response.body).to.eql({ error: 'Unauthorized' });
     });
   });
