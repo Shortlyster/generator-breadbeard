@@ -1,5 +1,7 @@
 # Breadbeard Projects Generator
 
+![TastyBeardHipster](https://cdn.rawgit.com/Shortlyster/generator-breadbeard/SCMP-LOGOTOWN/breadBeard.svg)
+
 This is a spike of a `yeoman` based generators system for the `breadbeard` project
 
 ## Usage & Examples
