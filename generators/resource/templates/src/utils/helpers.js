@@ -1,3 +1,5 @@
+const { cloneDeep } = require('lodash');
+
 /**
  * Converts all `null` values in the object to `undefined`
  * so that thinky models would delete the data on records update
@@ -21,13 +23,9 @@ function convert(value) {
 }
 
 function convertObject(value) {
-  const clone = {};
-
-  Object.keys(value).forEach(key => {
-    clone[key] = convert(value[key]);
-  });
-
-  return clone;
+  return Object.keys(value).reduce((clone, key) =>
+    Object.assign(clone, { [key]: convert(value[key]) })
+  , {});
 }
 
-exports.nullToUndefined = convert;
+exports.nullToUndefined = data => convert(cloneDeep(data));
