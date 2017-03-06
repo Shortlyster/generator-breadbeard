@@ -1,12 +1,8 @@
-FROM node:6.9
-ENV NPM_CONFIG_LOGLEVEL=warn
-RUN npm install -g yarn
-
-WORKDIR /app
+FROM shortlyster/node:latest
 
 COPY ./package.json /app
+COPY ./yarn.lock /app
+RUN $HOME/.yarn/bin/yarn install
 
-RUN NODE_ENV=null yarn install
-RUN npm cache clean
-
+RUN touch /app/.env
 ADD . /app
