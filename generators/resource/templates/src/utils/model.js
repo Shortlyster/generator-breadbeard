@@ -187,11 +187,8 @@ Object.defineProperty(Document.prototype, 'update', {
 Object.defineProperty(Document.prototype, 'replace', {
   enumerable: false,
   value(data) {
-    const applyHooks = hooks => {
-      for (const hook of hooks) {
-        hook.call(this, () => {});
-      }
-    };
+    const applyHooks = hooks =>
+      hooks.forEach(hook => hook.call(this, () => {}));
 
     // cleaing up all the existing data
     Object.getOwnPropertyNames(this).forEach(key => key !== 'id' && delete this[key]);

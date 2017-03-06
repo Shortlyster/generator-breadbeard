@@ -1,11 +1,7 @@
 {
   "extends": "shortlyster",
   "rules": {
-    "import/no-extraneous-dependencies": "off",
-    "arrow-parens": "off",
-    "no-plusplus": "off",
-    "no-restricted-syntax": "off",
-    "import/no-dynamic-require": "off"
+    "arrow-parens": "off"
   },
   "globals": {
     "expect": false
