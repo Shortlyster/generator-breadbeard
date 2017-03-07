@@ -4,19 +4,18 @@
   "description": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Prismatik/breadbeard_test.git"
+    "url": "git+https://github.com/Shortlyster/shortlyster-<%= appName %>.git"
   },
   "private": true,
   "main": "src/index.js",
   "engines": {
-    "node": "^6.4.0"
+    "node": "^6.9.0"
   },
   "scripts": {
     "start": "./bin/server",
     "test": "NODE_ENV=test mocha",
     "coverage": "NODE_ENV=test istanbul cover _mocha",
-    "dockertest": "docker-compose run breadbeard_test npm test",
-    "dockerwatch": "docker-compose run breadbeard_test npm run watch",
+    "dockertest": "docker-compose run app npm test",
     "lint": "eslint src test config",
     "precommit": "npm run lint"
   },

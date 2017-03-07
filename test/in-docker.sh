@@ -27,19 +27,19 @@ yo breadbeard:migration TabsToSpaces
 docker-compose down
 
 echo "> migrate up"
-docker-compose run breadbeard_test bin/migrate up
+docker-compose run app bin/migrate up
 
 echo "> migrate list"
-docker-compose run breadbeard_test bin/migrate list
+docker-compose run app bin/migrate list
 
 echo "> migrate rollback"
-docker-compose run breadbeard_test bin/migrate rollback
+docker-compose run app bin/migrate rollback
 
 echo "> npm test"
-docker-compose run breadbeard_test npm test
+docker-compose run app npm test
 
 echo "> npm run lint"
-docker-compose run breadbeard_test npm run lint
+docker-compose run app npm run lint
 
 # docker-compose down
 

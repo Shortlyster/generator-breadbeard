@@ -234,7 +234,7 @@ exports.testStandardControllerReplace = (controller, fixture) => {
       }
 
       expect(toObject(result)).to.eql(
-        Object.assign({}, record, validData, timestamps)
+        Object.assign({id: record.id}, validData, timestamps)
       );
     });
 

@@ -147,7 +147,7 @@ exports.testStandardRoutePut = (app, path, fixture, serialize = toObject) => {
 
       expect(response.status).to.eql(200);
       expect(response.body).to.eql(jsonDecode(serialize(
-        Object.assign({}, record, data, timestamps)
+        Object.assign({id: record.id}, data, timestamps)
       )));
     });
 

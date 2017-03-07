@@ -191,7 +191,10 @@ Object.defineProperty(Document.prototype, 'replace', {
       hooks.forEach(hook => hook.call(this, () => {}));
 
     // cleaing up all the existing data
-    Object.getOwnPropertyNames(this).forEach(key => key !== 'id' && delete this[key]);
+    const protectedFields = ['id', 'createdAt', 'updatedAt'];
+    Object.getOwnPropertyNames(this)
+      .filter(key => !protectedFields.includes(key))
+      .forEach(key => delete this[key]);
 
     // setting new data
     this.merge(Object.assign({ }, data));
