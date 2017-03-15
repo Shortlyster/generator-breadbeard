@@ -1,5 +1,10 @@
 const { cloneDeep } = require('lodash');
 
+exports.nullToUndefined = data => convert(cloneDeep(data));
+
+exports.makeYieldable = value =>
+  isYieldable(value) ? value : Promise.resolve(value);
+
 /**
  * Converts all `null` values in the object to `undefined`
  * so that thinky models would delete the data on records update
@@ -28,4 +33,16 @@ function convertObject(value) {
   , {});
 }
 
-exports.nullToUndefined = data => convert(cloneDeep(data));
+/**
+ * Checks if the item is a yieldable value
+ *
+ * @param {Object} something
+ * @return {boolean} check result
+ */
+function isYieldable(something) {
+  const procTypeName = ({}).toString.call(something.constructor);
+  const isGenerator = procTypeName.includes('GeneratorFunction');
+  const isPromise = something instanceof Promise;
+
+  return isGenerator || isPromise;
+}
