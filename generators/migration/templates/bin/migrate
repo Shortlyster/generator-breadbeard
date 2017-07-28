@@ -1,59 +1,58 @@
 #!/usr/bin/env node
 
-const co = require('co');
 const { thinky: { r } } = require('../config');
 const migration = require('../src/utils/migration');
 
 const command = process.argv[2];
 const arg1 = process.argv[3];
 
-co(start)
+start()
   .then(() => process.exit(0))
   .catch(error => {
     console.error('migration error', error);
     process.exit(1);
   });
 
-function* start() {
+async function start() {
   switch (command) {
-    case 'up': return yield migrateUp(arg1);
-    case 'down': return yield migrateDown(arg1);
-    case 'list': return yield listMigrations();
-    case 'rollback': return yield rollbackLastMigration();
-    case 'show_mutex': return yield showMutex();
-    case 'release_mutex': return yield releaseMutex();
+    case 'up': return await migrateUp(arg1);
+    case 'down': return await migrateDown(arg1);
+    case 'list': return await listMigrations();
+    case 'rollback': return await rollbackLastMigration();
+    case 'show_mutex': return await showMutex();
+    case 'release_mutex': return await releaseMutex();
 
     default:
       throw new Error('usage: migrate [COMMAND] [ARGUMENTS]');
   }
 }
 
-function* migrateUp(name) {
-  yield migration.up(name);
+async function migrateUp(name) {
+  await migration.up(name);
 }
 
-function* migrateDown(name) {
+async function migrateDown(name) {
   if (name) {
-    yield migration.down(name);
+    await migration.down(name);
   } else {
     throw new Error('migrate down requires a [FILENAME] as the first arguement');
   }
 }
 
-function* rollbackLastMigration() {
-  const list = yield migration.list();
+async function rollbackLastMigration() {
+  const list = await migration.list();
   const applied = list.filter(migration => migration.applied);
   const lastMigration = applied[applied.length - 1];
 
   if (lastMigration) {
-    yield migrateDown(lastMigration.name);
+    await migrateDown(lastMigration.name);
   } else {
     throw new Error('there is no migrations applied');
   }
 }
 
-function* listMigrations() {
-  const list = yield migration.list();
+async function listMigrations() {
+  const list = await migration.list();
 
   list.forEach(migration => console.log(
     migration.applied ? '✔︎' : '-',
@@ -61,10 +60,10 @@ function* listMigrations() {
   ));
 }
 
-function* showMutex() {
-  console.log(yield migration.queryMutex());
+async function showMutex() {
+  console.log(await migration.queryMutex());
 }
 
-function* releaseMutex() {
-  console.log(yield migration.releaseMutex());
+async function releaseMutex() {
+  console.log(await migration.releaseMutex());
 }

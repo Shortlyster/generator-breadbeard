@@ -5,22 +5,22 @@ const { createToken, hashPassword, verifyPassword } = require('../utils/auth');
 
 module.exports = createController(User, {
   *create(params) {
-    return yield super.create(yield hashPassword(params));
+    return await super.create(await hashPassword(params));
   },
 
   *update(id, params) {
-    return yield super.update(id, yield hashPassword(params));
+    return await super.update(id, await hashPassword(params));
   },
 
   *replace(id, params) {
-    return yield super.replace(id, yield hashPassword(params));
+    return await super.replace(id, await hashPassword(params));
   },
 
   *signin(email, pass) {
-    const [user] = yield User.filter({ email }).run();
+    const [user] = await User.filter({ email }).run();
     if (!user) throw new Unauthorized();
 
-    const verified = yield verifyPassword(pass, user.password);
+    const verified = await verifyPassword(pass, user.password);
     if (!verified) throw new Unauthorized();
 
     const token = createToken({ id: user.id, role: user.role });

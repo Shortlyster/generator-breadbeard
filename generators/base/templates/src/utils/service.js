@@ -61,12 +61,12 @@ module.exports = (url, defaults = {}) => {
 
         try {
           const query = Object.assign({ page }, params);
-          result = yield client.get(path, { params: query });
+          result = await client.get(path, { params: query });
         } catch (error) {
           rewrapError(error);
         }
 
-        yield makeYieldable(handler(result.data));
+        await makeYieldable(handler(result.data));
         hasMorePages = hasNextPageLink(result.headers);
         page++;
       } while (hasMorePages);

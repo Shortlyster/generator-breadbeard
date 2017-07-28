@@ -16,13 +16,13 @@ describe('/users route', () => {
     let user;
     let validData;
 
-    before(function *() {
+    before(async () => {
       validData = userFixture.data();
-      user = yield users.create(validData);
+      user = await users.create(validData);
     });
 
-    it('generates an auth token and returns a user', function *() {
-      const response = yield app.post('/users/signin', {
+    it('generates an auth token and returns a user', async () => {
+      const response = await app.post('/users/signin', {
         email: validData.email, password: validData.password
       });
       expect(response.status).to.eql(200);
@@ -30,8 +30,8 @@ describe('/users route', () => {
       expect(response.body.token).to.be.a('string');
     });
 
-    it('throws 401 when credentials are incorect', function *() {
-      const response = yield app.post('/users/signin', {
+    it('throws 401 when credentials are incorect', async () => {
+      const response = await app.post('/users/signin', {
         email: validData.email, password: 'hack hack hack'
       });
 

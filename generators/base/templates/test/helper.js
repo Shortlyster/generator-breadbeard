@@ -1,25 +1,22 @@
 const chai = require('chai');
-const mocha = require('mocha');
-const coMocha = require('co-mocha');
 
-coMocha(mocha);
+global.expect = chai.expect;
 
 const app = require('../src/index');
 const doubleagent = require('doubleagent');
 
 exports.app = doubleagent(app);
-global.expect = chai.expect;
 
 const models = require('../src/models');
 
 process.nextTick(() => {
-  before(function *() {
+  before(async function() {
     this.timeout(30000);
 
     // waiting on all tables to pop up
-    yield Object.keys(models).map(
+    await Promise.all(Object.keys(models).map(
       name => models[name].ready()
-    );
+    ));
   });
 });
 

@@ -40,53 +40,53 @@ exports.testStandardControllerList = (controller, fixture) => {
     let doc2;
     let doc3;
 
-    before(function *() {
-      yield fixture.Model.delete().execute();
+    before(async () => {
+      await fixture.Model.delete().execute();
 
-      [doc1, doc2, doc3] = yield [
+      [doc1, doc2, doc3] = await Promise.all([
         fixture.record(),
         fixture.record(),
         fixture.record()
-      ];
+      ]);
     });
 
-    it('returns all the records by default', function *() {
-      const result = yield controller.all();
+    it('returns all the records by default', async () => {
+      const result = await controller.all();
       expect(result).to.be.an('array');
       expect(sorted(result)).to.eql(sorted([
         doc1, doc2, doc3
       ]));
     });
 
-    it('allows to filter the list by a specific field', function *() {
+    it('allows to filter the list by a specific field', async () => {
       const filter = { id: doc1.id };
-      const result = yield controller.all(filter);
+      const result = await controller.all(filter);
       expect(sorted(result)).to.eql(sorted([doc1]));
     });
 
-    it('ignores totally unsupported params', function *() {
+    it('ignores totally unsupported params', async () => {
       const filter = { totalMonkey: 123 };
-      const result = yield controller.all(filter);
+      const result = await controller.all(filter);
       expect(sorted(result)).to.eql(sorted([
         doc1, doc2, doc3
       ]));
     });
 
-    it('allows to order things by a specific field', function *() {
+    it('allows to order things by a specific field', async () => {
       const params = { orderBy: 'id' };
-      const result = yield controller.all(params);
+      const result = await controller.all(params);
       expect(result.map(toObject)).to.eql(sorted([doc1, doc2, doc3], 'id'));
     });
 
-    it('allows to skip records', function *() {
+    it('allows to skip records', async () => {
       const params = { orderBy: 'id', skip: 1 };
-      const result = yield controller.all(params);
+      const result = await controller.all(params);
       expect(result.map(toObject)).to.eql(sorted([doc1, doc2, doc3], 'id').slice(1));
     });
 
-    it('allows to limit records', function *() {
+    it('allows to limit records', async () => {
       const params = { orderBy: 'id', limit: 2 };
-      const result = yield controller.all(params);
+      const result = await controller.all(params);
       expect(result.map(toObject)).to.eql(sorted([doc1, doc2, doc3], 'id').slice(0, 2));
     });
   });
@@ -99,18 +99,18 @@ exports.testStandardControllerFind = (controller, fixture) => {
   describe('.find(id)', () => {
     let record;
 
-    before(function *() {
-      record = yield fixture.record();
+    before(async () => {
+      record = await fixture.record();
     });
 
-    it('returns the record when it exists', function *() {
-      const result = yield controller.find(record.id);
+    it('returns the record when it exists', async () => {
+      const result = await controller.find(record.id);
       expect(toObject(result)).to.eql(toObject(record));
     });
 
-    it('throws DocumentNotFound if the record does not exist', function *() {
+    it('throws DocumentNotFound if the record does not exist', async () => {
       try {
-        yield controller.find('hack!');
+        await controller.find('hack!');
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
         expect(error).to.be.instanceOf(DocumentNotFound);
@@ -129,8 +129,8 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
       validData = fixture.data({ id: undefined, createdAt: undefined });
     });
 
-    it('saves valid data and returns a model instance', function *() {
-      const record = yield controller.create(validData);
+    it('saves valid data and returns a model instance', async () => {
+      const record = await controller.create(validData);
 
       expect(record.constructor).to.eql(fixture.Model);
       expect(record.id).to.match(UUID_RE);
@@ -145,9 +145,9 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
       ));
     });
 
-    it('throws validation errors when data is missing', function *() {
+    it('throws validation errors when data is missing', async () => {
       try {
-        yield controller.create({});
+        await controller.create({});
         throw new Error('expected throw a ValidationError');
       } catch (e) {
         expect(e).to.be.instanceOf(ValidationError);
@@ -165,21 +165,21 @@ exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
     let record;
     let validData;
 
-    before(function *() {
-      record = yield fixture.record({ createdAt: undefined });
+    before(async () => {
+      record = await fixture.record({ createdAt: undefined });
       validData = fixture.data({ id: undefined, createdAt: undefined });
     });
 
-    it('updates params when things are good', function *() {
-      const result = yield controller.update(record.id, validData);
+    it('updates params when things are good', async () => {
+      const result = await controller.update(record.id, validData);
 
       // must return an updated record
       expect(result.constructor).to.eql(fixture.Model);
     });
 
-    it('throws validation errors when data is missing', function *() {
+    it('throws validation errors when data is missing', async () => {
       try {
-        yield controller.replace(record.id, {});
+        await controller.replace(record.id, {});
         throw new Error('expected throw a ValidationError');
       } catch (e) {
         expect(e).to.be.instanceOf(ValidationError);
@@ -187,9 +187,9 @@ exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
       }
     });
 
-    it('explodes when data is wrong', function *() {
+    it('explodes when data is wrong', async () => {
       try {
-        yield controller.update(record.id, { id: 'hack!' });
+        await controller.update(record.id, { id: 'hack!' });
         throw new Error('expected to throw a ValidationError');
       } catch (e) {
         expect(e).to.be.instanceOf(ValidationError);
@@ -197,9 +197,9 @@ exports.testStandardControllerUpdate = (controller, fixture = sameThing) => {
       }
     });
 
-    it('throws DocumentNotFound when the document does not exist', function *() {
+    it('throws DocumentNotFound when the document does not exist', async () => {
       try {
-        yield controller.update('hack!', validData);
+        await controller.update('hack!', validData);
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
         expect(error).to.be.instanceOf(DocumentNotFound);
@@ -216,13 +216,13 @@ exports.testStandardControllerReplace = (controller, fixture) => {
     let record;
     let validData;
 
-    before(function *() {
-      record = yield fixture.record({ createdAt: undefined });
+    before(async () => {
+      record = await fixture.record({ createdAt: undefined });
       validData = fixture.data({ id: undefined, createdAt: undefined });
     });
 
-    it('updates params when things are good', function *() {
-      const result = yield controller.replace(record.id, validData);
+    it('updates params when things are good', async () => {
+      const result = await controller.replace(record.id, validData);
       const timestamps = fixture.schema.properties.createdAt ? {
         createdAt: record.createdAt, updatedAt: new Date().toISOString()
       } : {};
@@ -239,11 +239,11 @@ exports.testStandardControllerReplace = (controller, fixture) => {
       );
     });
 
-    it('explodes when data is wrong', function *() {
+    it('explodes when data is wrong', async () => {
       const data = Object.assign({}, validData, { id: 'hack!' });
 
       try {
-        yield controller.replace(record.id, data);
+        await controller.replace(record.id, data);
         throw new Error('expected to throw a ValidationError');
       } catch (e) {
         expect(e).to.be.instanceOf(ValidationError);
@@ -251,9 +251,9 @@ exports.testStandardControllerReplace = (controller, fixture) => {
       }
     });
 
-    it('throws DocumentNotFound when the document does not exist', function *() {
+    it('throws DocumentNotFound when the document does not exist', async () => {
       try {
-        yield controller.replace('hack!', validData);
+        await controller.replace('hack!', validData);
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
         expect(error).to.be.instanceOf(DocumentNotFound);
@@ -269,21 +269,21 @@ exports.testStandardControllerDelete = (controller, fixture, filter = sameThing)
   describe('.delete(id)', () => {
     let record;
 
-    before(function *() {
-      record = yield fixture.record();
+    before(async () => {
+      record = await fixture.record();
     });
 
-    it('deletes a document for sure when it exists', function *() {
-      const result = yield controller.delete(record.id);
+    it('deletes a document for sure when it exists', async () => {
+      const result = await controller.delete(record.id);
       expect(toObject(filter(result))).to.eql(toObject(filter(record)));
 
-      const records = yield record.getModel().filter({ id: record.id }).run();
+      const records = await record.getModel().filter({ id: record.id }).run();
       expect(records).to.have.length(0);
     });
 
-    it('throws DocumentNotFound when the document does not exist', function *() {
+    it('throws DocumentNotFound when the document does not exist', async () => {
       try {
-        yield controller.delete('hack!');
+        await controller.delete('hack!');
         throw new Error('expected throw DocumentNotFound');
       } catch (error) {
         expect(error).to.be.instanceOf(DocumentNotFound);

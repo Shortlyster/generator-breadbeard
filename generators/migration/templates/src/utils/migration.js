@@ -14,9 +14,9 @@ const existingMigrations = Object.keys(migrationFiles).sort().map(name => {
   return { up, down, name: _.snakeCase(name) };
 });
 
-exports.list = function *() {
-  yield Migration.ready();
-  const records = yield Migration.run();
+exports.list = async () => {
+  await Migration.ready();
+  const records = await Migration.run();
 
   return existingMigrations.map(migration => {
     const { name, up, down } = migration;
@@ -25,16 +25,16 @@ exports.list = function *() {
   });
 };
 
-exports.queryMutex = function *() {
-  yield Migration.ready();
-  const [mutex] = yield Migration.filter({ name: MUTEX_MIGRATION_NAME }).run();
+exports.queryMutex = async () => {
+  await Migration.ready();
+  const [mutex] = await Migration.filter({ name: MUTEX_MIGRATION_NAME }).run();
   return mutex;
 };
 
-exports.acquireMutex = function *() {
-  yield Migration.ready();
+exports.acquireMutex = async () => {
+  await Migration.ready();
   /* eslint no-underscore-dangle: 'off' */
-  return yield r.branch(
+  return await r.branch(
     Migration.filter({ name: MUTEX_MIGRATION_NAME }).count().gt(0)._query,
     r.error('mutex locked'),
     Migration.insert({
@@ -45,18 +45,18 @@ exports.acquireMutex = function *() {
   ).run();
 };
 
-exports.releaseMutex = function *() {
-  const mutex = yield exports.queryMutex();
+exports.releaseMutex = async () => {
+  const mutex = await exports.queryMutex();
 
   if (!mutex) throw new Error('Mutex was not found');
 
-  return yield mutex.delete();
+  return await mutex.delete();
 };
 
-exports.up = function *(name) {
-  yield exports.acquireMutex();
+exports.up = async (name) => {
+  await exports.acquireMutex();
 
-  const migrations = yield exports.list();
+  const migrations = await exports.list();
   const pendingMigrations = migrations.filter(m =>
     !m.applied && (name ? m.name === name : true)
   );
@@ -66,17 +66,17 @@ exports.up = function *(name) {
   for (let i = 0; i < pendingMigrations.length; i++) {
     const { up, name } = pendingMigrations[i];
     console.log('migrating', name);
-    yield up();
-    yield Migration.save({ name, date: new Date() });
+    await up();
+    await Migration.save({ name, date: new Date() });
   }
 
-  yield exports.releaseMutex();
+  await exports.releaseMutex();
 };
 
-exports.down = function *(name) {
-  yield exports.acquireMutex();
+exports.down = async (name) => {
+  await exports.acquireMutex();
 
-  const migrations = yield exports.list();
+  const migrations = await exports.list();
   const [migration] = migrations.filter(m => m.name === name);
 
   if (!migration) throw new Error('Could not find the migration');
@@ -84,10 +84,10 @@ exports.down = function *(name) {
   if (!migration.down) throw new Error('This migration does not have a `down` option');
 
   console.log('rolling back', name);
-  yield migration.down();
+  await migration.down();
 
-  const [record] = yield Migration.filter({ name }).run();
-  if (record) yield record.delete();
+  const [record] = await Migration.filter({ name }).run();
+  if (record) await record.delete();
 
-  yield exports.releaseMutex();
+  await exports.releaseMutex();
 };

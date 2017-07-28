@@ -13,29 +13,29 @@ describe('users controller', () => {
     let user;
     let validData;
 
-    beforeEach(function *() {
+    beforeEach(async () => {
       validData = userFixture.data();
-      user = yield users.create(validData);
+      user = await users.create(validData);
     });
 
-    it('returns a user and token if everything is correct', function *() {
-      const result = yield users.signin(validData.email, validData.password);
+    it('returns a user and token if everything is correct', async () => {
+      const result = await users.signin(validData.email, validData.password);
       expect(result.token).to.be.a('string');
 
       expect(Object.assign({}, result.user)).to.eql(Object.assign({}, user));
     });
 
-    it('throws UNAUTHORIZED if the email is wrong', function *() {
+    it('throws UNAUTHORIZED if the email is wrong', async () => {
       try {
-        yield users.signin('h4ckr@h4ck.com', validData.password);
+        await users.signin('h4ckr@h4ck.com', validData.password);
       } catch (e) {
         expect(e).to.be.instanceOf(Unauthorized);
       }
     });
 
-    it('throws UNAUTHORIZED if the password is wrong', function *() {
+    it('throws UNAUTHORIZED if the password is wrong', async () => {
       try {
-        yield users.signin(validData.email, 'hack hack hack');
+        await users.signin(validData.email, 'hack hack hack');
       } catch (e) {
         expect(e).to.be.instanceOf(Unauthorized);
       }

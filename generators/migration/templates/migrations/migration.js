@@ -1,11 +1,11 @@
 const { thinky } = require('../config');
 
 module.exports = {
-  *up() {
-    yield Promise.resolve();
+  async up() {
+    await Promise.resolve();
   },
 
-  *down() {
-    yield Promise.resolve();
+  async down() {
+    await Promise.resolve();
   }
 };

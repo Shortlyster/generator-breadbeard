@@ -40,9 +40,9 @@ describe('utils/model', function () {
       expect(Model).to.eql(thinky.models.things);
     });
 
-    it('should pick up validation errors', function *() {
+    it('should pick up validation errors', async () => {
       try {
-        yield new Model({}).save();
+        await new Model({}).save();
         throw new Error('should fail validations');
       } catch (error) {
         expect(error).to.be.instanceOf(thinky.Errors.ValidationError);
@@ -50,10 +50,10 @@ describe('utils/model', function () {
       }
     });
 
-    it('should pick up validation errors', function *() {
+    it('should pick up validation errors', async () => {
       const params = { email: 'blah!', password: 'blah!' };
       try {
-        yield new Model(params).save();
+        await new Model(params).save();
         throw new Error('should fail validations');
       } catch (error) {
         expect(error).to.be.instanceOf(thinky.Errors.ValidationError);
@@ -108,43 +108,43 @@ describe('utils/model', function () {
       });
     });
 
-    beforeEach(function *() {
-      record = yield new Model({ id: uuid.v4(), firstName: 'nikolay', lastName: 'theosom' }).save();
+    beforeEach(async () => {
+      record = await new Model({ id: uuid.v4(), firstName: 'nikolay', lastName: 'theosom' }).save();
       hookCalls = [];
     });
 
-    it('partially updates data with #udpate', function *() {
-      yield record.update({ lastName: 'new name' });
+    it('partially updates data with #udpate', async () => {
+      await record.update({ lastName: 'new name' });
 
       expect(record.firstName).to.eql('nikolay');
       expect(record.lastName).to.eql('new name');
 
-      const dbRecord = yield Model.get(record.id).run();
+      const dbRecord = await Model.get(record.id).run();
       expect(dbRecord.lastName).to.eql(record.lastName);
     });
 
-    it('fully updates data with #replace', function *() {
-      yield record.replace({ firstName: 'new name' });
+    it('fully updates data with #replace', async () => {
+      await record.replace({ firstName: 'new name' });
 
       expect(record.firstName).to.eql('new name');
       expect(record).to.not.have.property('lastName');
 
-      const dbRecord = yield Model.get(record.id).run();
+      const dbRecord = await Model.get(record.id).run();
       expect(dbRecord.firstName).to.eql(record.firstName);
       expect(dbRecord).to.not.have.property('lastName');
     });
 
-    it('explodes when validation fails', function *() {
+    it('explodes when validation fails', async () => {
       try {
-        yield record.update({ firstName: null });
+        await record.update({ firstName: null });
         throw new Error('validation must fail');
       } catch (error) {
         expect(error.message).to.eql('`firstName` must be string');
       }
     });
 
-    it('runs the pre/post hooks as expected', function *() {
-      yield record.update({ lastName: 'new name' });
+    it('runs the pre/post hooks as expected', async () => {
+      await record.update({ lastName: 'new name' });
       expect(hookCalls).to.eql(['pre validate 1', 'pre save 1', 'post save 1']);
     });
   });
@@ -185,8 +185,8 @@ describe('utils/model', function () {
       now = new Date();
     });
 
-    beforeEach(function *() {
-      record = yield new Model({ name: 'nikolay!' }).save();
+    beforeEach(async () => {
+      record = await new Model({ name: 'nikolay!' }).save();
     });
 
     afterEach(() => timekeeper.freeze(now));
@@ -196,21 +196,21 @@ describe('utils/model', function () {
       expect(record.updatedAt).to.eql(new Date().toISOString());
     });
 
-    it('updates the updatedAt and keeps createdAt on existing records', function *() {
+    it('updates the updatedAt and keeps createdAt on existing records', async () => {
       const tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1);
 
       timekeeper.freeze(tomorrow);
-      yield record.merge({ name: 'antikolay' }).save();
+      await record.merge({ name: 'antikolay' }).save();
 
       expect(record.createdAt).to.eql(now.toISOString());
       expect(record.updatedAt).to.eql(tomorrow.toISOString());
     });
 
-    it('updates the updatedAt with custom #update/#replace methods as well', function *() {
+    it('updates the updatedAt with custom #update/#replace methods as well', async () => {
       const tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1);
 
       timekeeper.freeze(tomorrow);
-      yield record.update({ name: 'antikolay' });
+      await record.update({ name: 'antikolay' });
 
       expect(record.createdAt).to.eql(now.toISOString());
       expect(record.updatedAt).to.eql(tomorrow.toISOString());

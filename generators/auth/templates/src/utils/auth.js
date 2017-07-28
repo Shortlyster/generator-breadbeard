@@ -15,12 +15,12 @@ exports.verifyToken = function (token, opts = {}) {
   });
 };
 
-exports.hashPassword = function *(params) {
+exports.hashPassword = async (params) => {
   return Object.assign({}, params, params.password ? {
-    password: yield password.create(params.password, HASH_ROUNDS)
+    password: await password.create(params.password, HASH_ROUNDS)
   } : {});
 };
 
-exports.verifyPassword = function *(one, another) {
-  return yield password.verify(one, another);
+exports.verifyPassword = async (one, another) => {
+  return await password.verify(one, another);
 };

@@ -8,11 +8,11 @@ const serialize = user => {
 };
 
 module.exports = createRouter(users, serialize)
-  .post('/signin', function *(req, res) {
+  .post('/signin', async (req, res) => {
     const { email, password } = req.body;
-    const { user, token } = yield users.signin(email, password);
+    const { user, token } = await users.signin(email, password);
     res.json({ token, user: serialize(user) });
   })
-  .post('/signout', function *(req, res) {
-    res.json(yield users.signout(req.body));
+  .post('/signout', async (req, res) => {
+    res.json(await users.signout(req.body));
   });

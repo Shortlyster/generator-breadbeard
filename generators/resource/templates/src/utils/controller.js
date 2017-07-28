@@ -18,39 +18,39 @@ exports.createController = (Model, subController) => {
  * @return {Object} base controller generator
  */
 exports.baseController = Model => ({
-  *all(params) {
-    return yield Model.standardQuery(params).run();
+  async all(params) {
+    return await Model.standardQuery(params).run();
   },
 
-  *watch(params) {
-    const [feed, count] = yield [
+  async watch(params) {
+    const [feed, count] = await Promise.all([
       Model.standardFeed(params),
       Model.standardQuery(params).count().execute()
-    ];
+    ]);
     return { feed, count };
   },
 
-  *find(id) {
-    return yield Model.get(id);
+  async find(id) {
+    return await Model.get(id);
   },
 
-  *create(params) {
-    return yield new Model(Object.assign({}, params)).save();
+  async create(params) {
+    return await new Model(Object.assign({}, params)).save();
   },
 
-  *update(id, params) {
-    const record = yield this.find(id);
-    return yield record.update(Object.assign({}, params));
+  async update(id, params) {
+    const record = await this.find(id);
+    return await record.update(Object.assign({}, params));
   },
 
-  *replace(id, params) {
-    const record = yield this.find(id);
-    return yield record.replace(Object.assign({}, params));
+  async replace(id, params) {
+    const record = await this.find(id);
+    return await record.replace(Object.assign({}, params));
   },
 
-  *delete(id) {
-    const record = yield this.find(id);
-    yield record.delete();
+  async delete(id) {
+    const record = await this.find(id);
+    await record.delete();
     return record;
   }
 });
