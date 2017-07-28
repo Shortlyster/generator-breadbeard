@@ -136,7 +136,8 @@ exports.testStandardControllerCreate = (controller, fixture, filter = sameThing)
       expect(record.id).to.match(UUID_RE);
 
       const timestamps = fixture.schema.properties.createdAt ? {
-        createdAt: new Date(), updatedAt: new Date()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       } : {};
 
       expect(toObject(filter(record))).to.eql(toObject(
@@ -223,7 +224,7 @@ exports.testStandardControllerReplace = (controller, fixture) => {
     it('updates params when things are good', function *() {
       const result = yield controller.replace(record.id, validData);
       const timestamps = fixture.schema.properties.createdAt ? {
-        createdAt: record.createdAt, updatedAt: new Date()
+        createdAt: record.createdAt, updatedAt: new Date().toISOString()
       } : {};
 
       // must return an updated record

@@ -62,47 +62,6 @@ describe('utils/model', function () {
     });
   });
 
-  describe('.create(modelName, {audit: true})', () => {
-    const TEST_JSON_SCHEMA = {
-      type: 'object',
-      name: 'auditableThing',
-      pluralName: 'auditableThings',
-      properties: {
-        id: {
-          type: 'string',
-          pattern: '^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
-        },
-        email: {
-          type: 'string',
-          format: 'email'
-        },
-        password: {
-          type: 'string'
-        }
-      },
-      required: [
-        'email',
-        'password'
-      ]
-    };
-    let Model;
-    const params = { email: 'blah@example.com', password: 'blah!' };
-
-    before(() => {
-      schema.auditableThing = TEST_JSON_SCHEMA;
-      Model = model.create('auditableThing', { audit: true });
-    });
-
-    it('should populate the audit log', function *() {
-      const record = yield new Model(params).save();
-
-      const audit = yield Model.AuditModel.filter({ doc: { id: record.id } }).run();
-
-      expect(audit[0].createdAt).to.be.a('date');
-      expect(audit[0].doc).to.eql(Object.assign({}, record));
-    });
-  });
-
   describe('update/replace data', () => {
     const TEST_JSON_SCHEMA = {
       type: 'object',
@@ -233,8 +192,8 @@ describe('utils/model', function () {
     afterEach(() => timekeeper.freeze(now));
 
     it('automatically populates the created at and updated at timestamps', () => {
-      expect(record.createdAt).to.eql(new Date());
-      expect(record.updatedAt).to.eql(new Date());
+      expect(record.createdAt).to.eql(new Date().toISOString());
+      expect(record.updatedAt).to.eql(new Date().toISOString());
     });
 
     it('updates the updatedAt and keeps createdAt on existing records', function *() {
@@ -243,8 +202,8 @@ describe('utils/model', function () {
       timekeeper.freeze(tomorrow);
       yield record.merge({ name: 'antikolay' }).save();
 
-      expect(record.createdAt).to.eql(now);
-      expect(record.updatedAt).to.eql(tomorrow);
+      expect(record.createdAt).to.eql(now.toISOString());
+      expect(record.updatedAt).to.eql(tomorrow.toISOString());
     });
 
     it('updates the updatedAt with custom #update/#replace methods as well', function *() {
@@ -253,8 +212,8 @@ describe('utils/model', function () {
       timekeeper.freeze(tomorrow);
       yield record.update({ name: 'antikolay' });
 
-      expect(record.createdAt).to.eql(now);
-      expect(record.updatedAt).to.eql(tomorrow);
+      expect(record.createdAt).to.eql(now.toISOString());
+      expect(record.updatedAt).to.eql(tomorrow.toISOString());
     });
   });
 });

@@ -9,7 +9,7 @@
   "private": true,
   "main": "src/index.js",
   "engines": {
-    "node": "^6.9.0"
+    "node": "^8.2.1"
   },
   "scripts": {
     "start": "./bin/server",
@@ -17,29 +17,26 @@
     "coverage": "NODE_ENV=test istanbul cover _mocha",
     "dockertest": "docker-compose run app npm test",
     "lint": "eslint src test config",
-    "precommit": "npm run lint"
+    "precommit": "yarn lint"
   },
   "license": "ISC",
   "dependencies": {
     "ajv": "^4.6.1",
+    "axios": "^0.16.2",
     "body-parser": "^1.15.2",
-    "bunyan": "^1.8.1",
-    "cors": "^2.8.0",
     "dotenv-safe": "^2.3.1",
     "express": "^4.14.0",
-    "express-jwt": "^5.0.0",
     "express-yields": "^1.0.0",
     "httperrors": "^2.1.0",
     "json-schema-deref-sync": "^0.3.2",
     "lodash": "^4.15.0",
-    "shortlyster-password": "^1.0.2",
+    "morgan": "^1.8.2",
+    "qs": "^6.5.0",
     "thinky": "^2.3.6",
     "uuid": "^2.0.2"
   },
   "devDependencies": {
-    "bandname": "^1.0.0",
     "chai": "^3.5.0",
-    "chai-as-promised": "^6.0.0",
     "co-mocha": "^1.1.3",
     "doubleagent": "^1.0.2",
     "eslint": "^3.4.0",

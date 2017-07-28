@@ -3,7 +3,6 @@
 const co = require('co');
 const { thinky: { r } } = require('../config');
 const migration = require('../src/utils/migration');
-const log = require('../src/utils/logger');
 
 const command = process.argv[2];
 const arg1 = process.argv[3];
@@ -11,7 +10,7 @@ const arg1 = process.argv[3];
 co(start)
   .then(() => process.exit(0))
   .catch(error => {
-    log.error('migration error', error);
+    console.error('migration error', error);
     process.exit(1);
   });
 

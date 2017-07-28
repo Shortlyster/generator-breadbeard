@@ -7,7 +7,7 @@ const { thinky, schema } = require('../../config');
  * @param {String} model name (in JSON schema)
  * @return {Class} thinky model
  */
-exports.create = (modelName, opts = {}) => {
+exports.create = (modelName) => {
   const modelSchema = schema[modelName];
   const validator = exports.thinkyValidatorFor(modelSchema);
   const Model = thinky.createModel(
@@ -15,10 +15,6 @@ exports.create = (modelName, opts = {}) => {
     { /* we are relying on the JSON schema validator to ensure data consitency */ },
     { validator, enforce_extra: 'none', enforce_type: 'none' }
   );
-
-  if (opts.audit) {
-    exports.setupAuditLog(Model);
-  }
 
   if (modelSchema.properties.createdAt || modelSchema.properties.updatedAt) {
     exports.setTimestampsHandling(Model);
@@ -37,12 +33,8 @@ exports.create = (modelName, opts = {}) => {
  * @return {Function} thinky compatible validator
  */
 exports.thinkyValidatorFor = (schema) => {
-  const propsClone = Object.assign({}, schema.properties);
-  const schemaClone = Object.assign({}, schema, { properties: propsClone });
-  delete schemaClone.properties.createdAt;
-  delete schemaClone.properties.updatedAt;
   const ajv = new Ajv({ allErrors: true, v5: true });
-  const validate = ajv.compile(schemaClone);
+  const validate = ajv.compile(schema);
   const humanReadableErrors = errors => errors.map(error => {
     const { dataPath, message, keyword, params: { missingProperty } } = error;
     const path = keyword === 'required' ? `${dataPath}.${missingProperty}` : dataPath;
@@ -135,31 +127,6 @@ exports.feedBuilder = (Model) => (params = {}) => {
 };
 
 /**
- * Sets up an audit log model that saves previous states of records
- *
- * @param {Class} model
- * @return void
- */
-exports.setupAuditLog = Model => {
-  const AuditModel = thinky.createModel(
-    `${Model.getTableName()}AuditLog`,
-    {
-      createdAt: Date,
-      doc: Object
-    }
-  );
-
-  Model.post('save', function (next) {
-    new AuditModel({
-      createdAt: new Date(),
-      doc: Object.assign({}, this)
-    }).save(next);
-  });
-
-  Model.AuditModel = AuditModel;
-};
-
-/**
  * Sets the automatic `createdAt` and `updatedAt` records handling
  *
  * @param {class} thinky model
@@ -167,7 +134,7 @@ exports.setupAuditLog = Model => {
  */
 exports.setTimestampsHandling = Model => {
   Model.pre('save', function (next) {
-    this.updatedAt = new Date();
+    this.updatedAt = new Date().toISOString();
 
     if (!this.createdAt) {
       this.createdAt = this.updatedAt;

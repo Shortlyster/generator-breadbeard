@@ -105,7 +105,8 @@ exports.testStandardRoutePost = (app, path, fixture, serialize = toObject) => {
       const omits = { id: undefined };
       const data = fixture.data(Object.assign({}, omits, { createdAt: undefined }));
       const timestamps = fixture.schema.properties.createdAt ? {
-        createdAt: new Date(), updatedAt: new Date()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       } : {};
 
       const response = yield app.post(path, data);
@@ -142,7 +143,8 @@ exports.testStandardRoutePut = (app, path, fixture, serialize = toObject) => {
     it('replaces an entire document and returns the updated record back', function *() {
       const response = yield app.put(`${path}/${record.id}`, data);
       const timestamps = fixture.schema.properties.createdAt ? {
-        createdAt: new Date(), updatedAt: new Date()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       } : {};
 
       expect(response.status).to.eql(200);
@@ -190,7 +192,8 @@ exports.testStandardRoutePatch = (app, path, fixture, serialize = toObject) => {
     it('replaces an entire document and returns the updated record back', function *() {
       const response = yield app.patch(`${path}/${record.id}`, data);
       const timestamps = fixture.schema.properties.createdAt ? {
-        createdAt: new Date(), updatedAt: new Date()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       } : {};
       expect(response.status).to.eql(200);
       expect(response.body).to.eql(jsonDecode(serialize(
