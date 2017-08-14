@@ -9,7 +9,7 @@ const { makeYieldable } = require('./helpers');
 module.exports = (url, defaults = {}) => {
   const client = axios.create({
     baseURL: url,
-    paramsSerializer: params => qs.stringify(params)
+    paramsSerializer: params => qs.stringify(params, { indices: false })
   });
 
   Object.keys(defaults).forEach(key => {
