@@ -26,6 +26,22 @@ exports.create = (modelName) => {
   return Model;
 };
 
+/* eslint no-nested-ternary: off */
+const humanReadableErrors = errors => errors.map(error => {
+  const { dataPath, message, keyword, params: { missingProperty, additionalProperty } } = error;
+  const path = keyword === 'required'
+    ? `${dataPath}.${missingProperty}`
+    : (additionalProperty || dataPath);
+
+  const text = keyword === 'required'
+    ? 'is required'
+    : additionalProperty
+      ? 'is not an allowed property'
+      : message.replace('should', 'must');
+
+  return `\`${path.replace(/^\./, '')}\` ${text}`;
+});
+
 /**
  * Builds a Thinky compatible data validator out of the JSON Schema
  *
@@ -35,13 +51,6 @@ exports.create = (modelName) => {
 exports.thinkyValidatorFor = (schema) => {
   const ajv = new Ajv({ allErrors: true, v5: true });
   const validate = ajv.compile(schema);
-  const humanReadableErrors = errors => errors.map(error => {
-    const { dataPath, message, keyword, params: { missingProperty } } = error;
-    const path = keyword === 'required' ? `${dataPath}.${missingProperty}` : dataPath;
-    const text = keyword === 'required' ? 'is required' : message.replace('should', 'must');
-
-    return `\`${path.replace(/^\./, '')}\` ${text}`;
-  });
 
   return document => {
     if (!validate(document)) {
