@@ -75,8 +75,12 @@ exports.queryBuilder = (model, schema) => (params = {}) => {
   Object.keys(params).forEach(key => {
     if (schema.properties[key]) {
       if (Array.isArray(params[key])) {
-        const expr = thinky.r.expr(params[key]);
-        query = query.filter(doc => expr.contains(doc(key)));
+        if (params[key].length === 0) {
+          query = query.filter(false);
+        } else {
+          const expr = thinky.r.expr(params[key]);
+          query = query.filter(doc => expr.contains(doc(key)));
+        }
       } else {
         filter[key] = params[key];
       }
