@@ -23,7 +23,7 @@ module.exports = (url, defaults = {}) => {
     if (response) {
       // rewrapping the error into HttpError
       const { status, data } = response;
-      throw new HttpError(status, data.error);
+      throw new HttpError[status](data.error);
     } else {
       throw error;
     }
